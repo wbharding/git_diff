@@ -16,6 +16,10 @@ index 403ea33..dd4b590 100644
        parents = []
        parents << lines.shift[7..-1] while lines.first[0, 6] == 'parent'
        author,    authored_date  = Grit::Commit.actor(lines.shift)
+diff --git a/image.jpeg b/image.jpeg
+new file mode 100644
+index 0000000..09a2388
+Binary files /dev/null and b/image.jpeg differ
 diff --git a/lib/grit/new_file.rb b/lib/grit/new_file.rb
 new file mode 100644
 index 0000000..24f83d1
@@ -57,7 +61,7 @@ index 033b446..0e2d140 100644
   end
 
   def test_returns_the_number_of_files
-    assert_equal 4, @diff.files.count
+    assert_equal 5, @diff.files.count
   end
 
   def test_returns_the_number_of_lines_per_file

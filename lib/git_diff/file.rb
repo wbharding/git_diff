@@ -18,6 +18,8 @@ module GitDiff
 
       if(range_info = RangeInfo.from_string(string))
         add_hunk Hunk.new(range_info)
+      elsif(/^Binary files a?\/(.*) and b?\/(.*) differ$/ === string)
+        add_hunk BinaryHunk.new
       else
         append_to_current_hunk string
       end
