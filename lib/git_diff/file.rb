@@ -29,6 +29,12 @@ module GitDiff
       @stats ||= Stats.total(collector)
     end
 
+    def binary?
+      hunks.all? do |hunk|
+        BinaryHunk === hunk
+      end
+    end
+
     private
 
     attr_accessor :current_hunk
