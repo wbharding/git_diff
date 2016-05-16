@@ -8,6 +8,10 @@ module GitDiff
       def deletion?
         true
       end
+
+      def context?
+        false
+      end
     end
   end
 end

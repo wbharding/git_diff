@@ -20,6 +20,10 @@ module GitDiff
         false
       end
 
+      def context?
+        true
+      end
+
       def to_s
         content
       end

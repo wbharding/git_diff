@@ -8,6 +8,10 @@ module GitDiff
       def addition?
         true
       end
+
+      def context?
+        false
+      end
     end
   end
 end
