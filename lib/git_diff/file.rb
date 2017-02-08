@@ -38,9 +38,7 @@ module GitDiff
     end
 
     def binary?
-      hunks.all? do |hunk|
-        BinaryHunk === hunk
-      end
+      !hunks.empty? && hunks.all? { |hunk| BinaryHunk === hunk }
     end
 
     def renamed?
