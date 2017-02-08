@@ -1,7 +1,7 @@
 module GitDiff
   class File
 
-    attr_reader :a_path, :a_blob, :b_path, :b_blob, :b_mode, :hunks
+    attr_reader :a_path, :a_blob, :b_path, :b_blob, :b_mode, :hunks, :similarity_index
 
     def self.from_string(string)
       if /^diff --git/.match(string)
@@ -11,6 +11,7 @@ module GitDiff
 
     def initialize
       @hunks = []
+      @renamed = false
     end
 
     def <<(string)
@@ -42,6 +43,10 @@ module GitDiff
       end
     end
 
+    def renamed?
+      @renamed
+    end
+
     private
 
     attr_accessor :current_hunk
@@ -71,6 +76,15 @@ module GitDiff
         @a_path = "/dev/null"
       when /^deleted file mode [0-9]{6}$/.match(string)
         @b_path = "/dev/null"
+      when similarity_index_info = /^similarity index (\d+)/.match(string)
+        @similarity_index = similarity_index_info[1].to_f / 100
+      when renamed_path_info = /^rename (from|to) (.*)$/.match(string)
+        @renamed = true
+        if renamed_path_info[1] == "from"
+          @a_path = renamed_path_info[2]
+        else
+          @b_path = renamed_path_info[2]
+        end
       end
     end
   end
