@@ -1,5 +1,6 @@
 module GitDiff
   class File
+    DEV_NULL = "/dev/null"
 
     attr_reader :a_path, :a_blob, :b_path, :b_blob, :b_mode, :hunks, :similarity_index
 
@@ -41,6 +42,14 @@ module GitDiff
       !hunks.empty? && hunks.all? { |hunk| BinaryHunk === hunk }
     end
 
+    def new_file?
+      a_path == DEV_NULL
+    end
+
+    def deleted_file?
+      b_path == DEV_NULL
+    end
+
     def renamed?
       @renamed
     end
@@ -71,9 +80,9 @@ module GitDiff
       when blob_info = /^index ([0-9A-Fa-f]+)\.\.([0-9A-Fa-f]+) ?(.+)?$/.match(string)
         @a_blob, @b_blob, @b_mode = *blob_info.captures
       when /^new file mode [0-9]{6}$/.match(string)
-        @a_path = "/dev/null"
+        @a_path = DEV_NULL
       when /^deleted file mode [0-9]{6}$/.match(string)
-        @b_path = "/dev/null"
+        @b_path = DEV_NULL
       when similarity_index_info = /^similarity index (\d+)/.match(string)
         @similarity_index = similarity_index_info[1].to_f / 100
       when renamed_path_info = /^rename (from|to) (.*)$/.match(string)
