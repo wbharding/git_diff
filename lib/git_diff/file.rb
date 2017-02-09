@@ -1,6 +1,6 @@
 module GitDiff
   class File
-    DEV_NULL = "/dev/null"
+    DEV_NULL = "dev/null"
 
     attr_reader :a_path, :a_blob, :b_path, :b_blob, :b_mode, :hunks, :similarity_index
 
