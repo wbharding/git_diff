@@ -8,7 +8,7 @@ module GitDiff
       def from_string(string)
         # Get rid of the + or - at the beginning of an addition/subtraction string.
         # That info is already communicated by the line's class.
-        line_class(string[0]).new(string.gsub(/^[\-\+]/, " "))
+        line_class(string[0]).new(string.gsub(/^[\-\+]/, ""))
       end
 
       def line_class(symbol)
