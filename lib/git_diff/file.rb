@@ -6,11 +6,12 @@ module GitDiff
 
     def self.from_string(string)
       if /^diff --git/.match(string)
-        File.new
+        File.new(string)
       end
     end
 
-    def initialize
+    def initialize(string)
+      @header = string
       @hunks = []
       @renamed = false
     end
@@ -92,6 +93,8 @@ module GitDiff
         else
           @b_path = renamed_path_info[2]
         end
+      when /^(new|old) mode (\d+)/.match(string)
+        @a_path = @b_path = /^diff --git (.*)/.match(@header)[1].split(" ").first.gsub("a/", "")
       end
     end
   end
