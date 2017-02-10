@@ -2,7 +2,7 @@ module GitDiff
   class File
     DEV_NULL = "dev/null"
 
-    attr_reader :a_path, :a_blob, :b_path, :b_blob, :b_mode, :header, :hunks, :similarity_index
+    attr_reader :a_path, :a_blob, :a_mode, :b_path, :b_blob, :b_mode, :header, :hunks, :similarity_index
 
     def self.from_string(string)
       if /^diff --git/.match(string)
@@ -53,6 +53,10 @@ module GitDiff
       b_path == DEV_NULL
     end
 
+    def mode_changed?
+      a_mode != b_mode
+    end
+
     def renamed?
       @renamed
     end
@@ -97,8 +101,12 @@ module GitDiff
         @similarity_index = similarity_index_info[1].to_f / 100
       when /^rename (from|to) (.*)$/.match(string)
         @renamed = true
-      when /^(new|old) mode (\d+)/.match(string)
-        @a_path = @b_path = /^diff --git (.*)/.match(@header)[1].split(" ").first.gsub("a/", "")
+      when mode_info = /^(new|old) mode (\d+)/.match(string)
+        if mode_info[1] == "old"
+          @a_mode = mode_info[2]
+        else
+          @b_mode = mode_info[2]
+        end
       end
     end
   end
