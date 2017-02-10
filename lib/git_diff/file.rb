@@ -2,7 +2,7 @@ module GitDiff
   class File
     DEV_NULL = "dev/null"
 
-    attr_reader :a_path, :a_blob, :b_path, :b_blob, :b_mode, :hunks, :similarity_index
+    attr_reader :a_path, :a_blob, :b_path, :b_blob, :b_mode, :header, :hunks, :similarity_index
 
     def self.from_string(string)
       if /^diff --git/.match(string)
@@ -10,10 +10,12 @@ module GitDiff
       end
     end
 
-    def initialize(string)
-      @header = string
+    def initialize(header)
+      @header = header
       @hunks = []
       @renamed = false
+
+      get_paths_from_header
     end
 
     def <<(string)
@@ -32,7 +34,7 @@ module GitDiff
     end
 
     def each_hunk
-      @hunks.to_enum(:each)
+      hunks.to_enum(:each)
     end
 
     def stats
@@ -72,6 +74,13 @@ module GitDiff
       current_hunk << string
     end
 
+    # Initialize the paths from the header. These may be changed by extract_diff_meta_data.
+    def get_paths_from_header
+      path_info = /^diff --git a?\/(.*) b?\/(.*)$/.match(header)
+      @a_path = path_info[1]
+      @b_path = path_info[2]
+    end
+
     def extract_diff_meta_data(string)
       case
       when a_path_info = /^[-]{3} a?\/(.*)$/.match(string)
@@ -86,13 +95,8 @@ module GitDiff
         @b_path = DEV_NULL
       when similarity_index_info = /^similarity index (\d+)/.match(string)
         @similarity_index = similarity_index_info[1].to_f / 100
-      when renamed_path_info = /^rename (from|to) (.*)$/.match(string)
+      when /^rename (from|to) (.*)$/.match(string)
         @renamed = true
-        if renamed_path_info[1] == "from"
-          @a_path = renamed_path_info[2]
-        else
-          @b_path = renamed_path_info[2]
-        end
       when /^(new|old) mode (\d+)/.match(string)
         @a_path = @b_path = /^diff --git (.*)/.match(@header)[1].split(" ").first.gsub("a/", "")
       end
