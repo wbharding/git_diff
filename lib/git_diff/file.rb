@@ -54,7 +54,7 @@ module GitDiff
     end
 
     def mode_changed?
-      a_mode != b_mode
+      a_mode && b_mode && a_mode != b_mode
     end
 
     def renamed?
