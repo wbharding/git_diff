@@ -7,8 +7,9 @@ module GitDiff
     module ClassMethods
       def from_string(string)
         # Get rid of the + or - at the beginning of an addition/subtraction string.
-        # That info is already communicated by the line's class.
-        line_class(string[0]).new(string.gsub(/^[\-\+]/, ""))
+        # That info is already communicated by the line's class. Note that context lines also get
+        # a false blank space from the diff symbol. We'll omit that pseudo-space as well:
+        line_class(string[0]).new(string[1..string.size-1])
       end
 
       def line_class(symbol)
