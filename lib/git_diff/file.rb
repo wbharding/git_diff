@@ -109,7 +109,7 @@ module GitDiff
         end
       # Ignore the "no newline" directive from patch file, as opposed to interpreting
       # it as a context line that spans before and after files in weird ways
-      when /no newline at end of file/i.match(string)
+      when /^. no newline at end of file/i.match(string)
         true
       end
     end
