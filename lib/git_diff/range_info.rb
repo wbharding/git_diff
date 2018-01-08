@@ -1,3 +1,10 @@
+# ---------------------------------------------------------------------------
+# Interpret range string from patch file, i.e., parse
+# @@ -1,15 +0,0 @@
+# ... into @original_range and @new_range instance vars
+#
+# Info on how this should be done at https://stackoverflow.com/questions/10950412/what-does-1-1-mean-in-gits-diff-output
+# Or http://www.gnu.org/software/diffutils/manual/diffutils.html#Detailed-Unified
 module GitDiff
   class RangeInfo
     attr_reader :original_range, :new_range, :header
@@ -10,9 +17,10 @@ module GitDiff
       end
 
       def extract_hunk_range_data(string)
-        /@@ \-(.+) \+(.+) @@(.*)/.match(string)
+        /^@@ \-([\d,]+) \+([\d,]+) @@(.*)/.match(string)
       end
     end
+
     extend ClassMethods
 
     def initialize(original_range, new_range, header)
