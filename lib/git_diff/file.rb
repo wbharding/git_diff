@@ -7,6 +7,9 @@ module GitDiff
     def self.from_string(string)
       if /^diff --git/.match(string)
         File.new(string)
+      elsif /^diff -r [a-f0-9]+ -r [a-f 0-9]+/.match(string)
+        # Alternative format for diff header
+        File.new(string)
       end
     end
 
@@ -81,8 +84,15 @@ module GitDiff
     # Initialize the paths from the header. These may be changed by extract_diff_meta_data.
     def get_paths_from_header
       path_info = /^diff --git a?\/(.*) b?\/(.*)$/.match(header)
-      @a_path = path_info[1]
-      @b_path = path_info[2]
+      if path_info
+        @a_path = path_info[1]
+        @b_path = path_info[2]
+      else
+        # Alternative format for diff headers
+        path_info = /^diff -r ([a-f0-9]*) -r ([a-f0-9]*) (.*)$/.match(header)
+        @a_path = path_info[3]
+        @b_path = path_info[3]
+      end
     end
 
     def extract_diff_meta_data(string)
