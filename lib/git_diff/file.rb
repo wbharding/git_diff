@@ -31,6 +31,11 @@ module GitDiff
         @b_path = path_info[2]
 
         add_hunk BinaryHunk.new
+      elsif(path_info = /^Binary file (.*) has changed$/.match(string))
+        @a_path = path_info[1]
+        @b_path = path_info[2]
+
+        add_hunk BinaryHunk.new
       else
         append_to_current_hunk string
       end
