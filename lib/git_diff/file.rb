@@ -36,6 +36,8 @@ module GitDiff
         @b_path = path_info[2]
 
         add_hunk BinaryHunk.new
+      elsif current_hunk.nil? && (string.starts_with?("+++") || string.ends_with?("---"))
+        # All the info implied by these +++ and --- bits preceding a hunk is implied by the a and b paths - skip
       else
         append_to_current_hunk string
       end
@@ -88,10 +90,18 @@ module GitDiff
 
     # Initialize the paths from the header. These may be changed by extract_diff_meta_data.
     def get_paths_from_header
-      path_info = /^diff --git a?\/(.*) b?\/(.*)$/.match(header)
+      path_info = /^diff --git ((\")?a?\/(.*)) ((\")?b?\/(.*))$/.match(header)
       if path_info
         @a_path = path_info[1]
-        @b_path = path_info[2]
+        @b_path = path_info[4]
+
+        # Sometimes the patch components have  quotes around them. e.g: \"a/some/file\"
+        @a_path = @a_path[1..-2] if @a_path.starts_with?("\"") && @a_path.ends_with?("\"")
+        @b_path = @b_path[1..-2] if @b_path.starts_with?("\"") && @b_path.ends_with?("\"")
+
+        # And they almost always have an a/ and b/ at the beginning
+        @a_path = @a_path[2..-1] if @a_path.starts_with?("a/")
+        @b_path = @b_path[2..-1] if @b_path.starts_with?("b/")
       else
         # Alternative format for diff headers
         path_info = /^diff -r ([a-f0-9]*) -r ([a-f0-9]*) (.*)$/.match(header)
