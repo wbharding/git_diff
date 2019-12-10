@@ -85,7 +85,13 @@ module GitDiff
     end
 
     def append_to_current_hunk(string)
-      current_hunk << string
+      # WBH Dec 2019 observes that there are cases like https://github.com/vuejs/vue/commit/585c97cd6a55840ea4c7925a066c1cd9d6d51daa
+      # where binary files are interpreted as having a string but no hunks to add those strings to. We'll ignore such files.
+      if current_hunk
+        current_hunk << string
+      else
+        nil
+      end
     end
 
     # Initialize the paths from the header. These may be changed by extract_diff_meta_data.
