@@ -96,7 +96,9 @@ module GitDiff
 
     # Initialize the paths from the header. These may be changed by extract_diff_meta_data.
     def get_paths_from_header
-      path_info = /^diff --git ((\")?a?\/(.*)) ((\")?b?\/(.*))$/.match(header)
+      # We have two main formats for headers: src:// and dst://, vs. a/ and b/. Let's standardize to the latter.
+      standardized_path_headers = header.sub("src://", "a/").sub("dst://", "b/")
+      path_info = /^diff --git ((\")?a?\/(.*)) ((\")?b?\/(.*))$/.match(standardized_path_headers)
       if path_info
         @a_path = path_info[1]
         @b_path = path_info[4]
@@ -110,7 +112,7 @@ module GitDiff
         @b_path = @b_path[2..-1] if @b_path.starts_with?("b/")
       else
         # Alternative format for diff headers
-        path_info = /^diff -r ([a-f0-9]*) -r ([a-f0-9]*) (.*)$/.match(header)
+        path_info = /^diff -r ([a-f0-9]*) -r ([a-f0-9]*) (.*)$/.match(standardized_path_headers)
         @a_path = path_info[3]
         @b_path = path_info[3]
       end
